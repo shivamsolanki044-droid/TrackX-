@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Expense Tracker &amp; Budget Manager | TrackX</title>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <div class="app-layout">
+        <!-- ============================================== -->
+        <!-- SIDEBAR NAVIGATION                             -->
+        <!-- ============================================== -->
+        <aside id="app-sidebar" class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i data-lucide="wallet"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">TrackX</span>
+                    <span class="brand-tag">Expense Tracker</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#transactions" class="nav-link" data-page="transactions">
+                            <i data-lucide="arrow-left-right"></i>
+                            <span>Transactions</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#budget" class="nav-link" data-page="budget">
+                            <i data-lucide="pie-chart"></i>
+                            <span>Budget Planner</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#analytics" class="nav-link" data-page="analytics">
+                            <i data-lucide="bar-chart-3"></i>
+                            <span>Expense Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#savings" class="nav-link" data-page="savings">
+                            <i data-lucide="target"></i>
+                            <span>Savings Goals</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#settings" class="nav-link" data-page="settings">
+                            <i data-lucide="settings"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Sidebar Footer & Branding -->
+            <div class="sidebar-footer">
+                <div class="project-badge">
+                    <div class="badge-header">
+                        <span class="badge-dot"></span>
+                        <span class="font-semibold text-xs">TrackX &bull; CSE Mini Project</span>
+                    </div>
+                    <div class="project-meta">
+                        <span>LNCT Excellence</span>
+                        <span>2026–27</span>
+                    </div>
+                </div>
+
+                <div class="user-profile-compact">
+                    <div class="user-avatar">SS</div>
+                    <div class="user-info">
+                        <span id="sidebar-user-name" class="user-name">Shivam Solanki</span>
+                        <span class="user-status">Student &bull; TrackX Lead</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============================================== -->
+        <!-- MAIN CONTENT AREA                              -->
+        <!-- ============================================== -->
+        <div class="main-wrapper">
+            <!-- Top Navigation Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button id="mobile-menu-btn" class="btn-icon mobile-menu-btn" aria-label="Toggle navigation">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <div class="page-header-text">
+                        <h1 id="page-title-main" class="page-title">Dashboard</h1>
+                        <span id="page-title-sub" class="page-subtitle">Overview &amp; Spending Summary</span>
+                    </div>
+                </div>
+
+                <div class="topbar-center">
+                    <div class="search-box">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="global-search-input" placeholder="Search transactions, notes..." aria-label="Search transactions">
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div id="topbar-date-pill" class="date-pill">
+                        <i data-lucide="calendar"></i>
+                        <span>October 2026</span>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle-btn" class="btn-icon" title="Toggle Theme" aria-label="Toggle dark/light theme">
+                        <i id="theme-icon" data-lucide="moon"></i>
+                    </button>
+
+                    <!-- Notification Bell -->
+                    <div class="notif-wrapper">
+                        <button id="notif-btn" class="btn-icon notif-bell" title="Notifications" aria-label="View notifications">
+                            <i data-lucide="bell"></i>
+                            <span id="notif-badge" class="notif-badge" style="display: none;">0</span>
+                        </button>
+                        <div id="notif-dropdown" class="notif-dropdown">
+                            <div class="notif-dropdown-header">
+                                <span class="font-semibold text-sm">Notifications</span>
+                                <div class="notif-header-actions">
+                                    <button id="notif-mark-read" class="btn-link-xs">Mark read</button>
+                                    <button id="notif-clear-all" class="btn-link-xs">Clear</button>
+                                </div>
+                            </div>
+                            <div id="notif-list" class="notif-dropdown-body">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Expense Primary Action Button -->
+                    <button id="topbar-add-expense-btn" class="btn btn-primary btn-add-expense">
+                        <i data-lucide="plus"></i>
+                        <span>Add Expense</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Views Container -->
+            <main class="page-content">
+                <!-- ============================================== -->
+                <!-- 1. DASHBOARD VIEW                              -->
+                <!-- ============================================== -->
+                <section id="view-dashboard" class="page-view">
+                    <!-- Welcome Hero -->
+                    <div class="welcome-banner">
+                        <div class="welcome-text">
+                            <h2>Good day! Here&rsquo;s your financial overview.</h2>
+                            <p>Track your student expenses, monitor budget usage, and stay on top of your financial goals.</p>
+                        </div>
+                        <div class="welcome-actions">
+                            <button class="btn btn-sm btn-outline-white" onclick="App.navigateTo('budget')">
+                                <i data-lucide="pie-chart"></i> Adjust Budget
+                            </button>
+                            <button class="btn btn-sm btn-light" onclick="Expenses.openAddModal()">
+                                <i data-lucide="plus-circle"></i> Quick Expense
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4 Summary KPI Cards -->
+                    <div class="kpi-grid">
+                        <!-- Total Expenses -->
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Total Expenses</span>
+                                <div class="kpi-icon-bubble bg-emerald-light text-emerald">
+                                    <i data-lucide="credit-card"></i>
+                                </div>
+                            </div>
+                            <div class="kpi-value" id="dash-total-expenses">₹8,000</div>
+                            <div class="kpi-meta">
+                                <span class="text-muted text-xs">Total spending this month</span>
+                            </div>
+                        </div>
+
+                        <!-- Monthly Budget -->
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Monthly Budget</span>
+                                <div class="kpi-icon-bubble bg-blue-light text-blue">
+                                    <i data-lucide="wallet"></i>
+                                </div>
+                            </div>
+                            <div class="kpi-value" id="dash-monthly-budget">₹12,000</div>
+                            <div class="kpi-meta">
+                                <span class="text-muted text-xs">User configured monthly limit</span>
+                            </div>
+                        </div>
+
+                        <!-- Remaining Budget -->
+                        <div class="kpi-card" id="dash-remaining-card">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Remaining Budget</span>
+                                <div class="kpi-icon-bubble bg-purple-light text-purple">
+                                    <i data-lucide="banknote"></i>
+                                </div>
+                            </div>
+                            <div class="kpi-value text-emerald" id="dash-remaining-budget">₹4,000</div>
+                            <div class="kpi-meta">
+                                <span class="text-muted text-xs">Available for remaining days</span>
+                            </div>
+                        </div>
+
+                        <!-- Savings Progress -->
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Savings Progress</span>
+                                <div class="kpi-icon-bubble bg-amber-light text-amber">
+                                    <i data-lucide="piggy-bank"></i>
+                                </div>
+                            </div>
+                            <div class="kpi-value text-amber" id="dash-savings-progress">40.0%</div>
+                            <div class="kpi-meta">
+                                <span class="text-muted text-xs" id="dash-savings-subtitle">₹8,000 of ₹20,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Strip -->
+                    <div class="quick-actions-bar">
+                        <span class="quick-actions-title"><i data-lucide="zap"></i> Quick Shortcuts:</span>
+                        <div class="quick-actions-buttons">
+                            <button class="btn-chip" onclick="Expenses.openAddModal()">
+                                <i data-lucide="plus"></i> Add Expense
+                            </button>
+                            <button class="btn-chip" onclick="App.navigateTo('budget')">
+                                <i data-lucide="sliders"></i> Set Monthly Budget
+                            </button>
+                            <button class="btn-chip" onclick="App.navigateTo('savings'); App.openGoalModal();">
+                                <i data-lucide="target"></i> Create Savings Goal
+                            </button>
+                            <button class="btn-chip" onclick="App.navigateTo('analytics')">
+                                <i data-lucide="line-chart"></i> View Analytics
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Grid: Charts Row -->
+                    <div class="dash-grid-charts">
+                        <!-- Chart A: Spending Trend -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Daily Spending Trend</h3>
+                                    <span class="card-subtitle">Daily breakdown of expenses in this month</span>
+                                </div>
+                                <span class="badge badge-neutral"><i data-lucide="calendar"></i> This Month</span>
+                            </div>
+                            <div class="chart-container-trend">
+                                <canvas id="dashboardTrendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart B: Category Breakdown -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Expense Breakdown</h3>
+                                    <span class="card-subtitle">Category-wise spending distribution</span>
+                                </div>
+                                <span class="badge badge-neutral">Categories</span>
+                            </div>
+                            <div class="chart-container-doughnut">
+                                <canvas id="dashboardCategoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Grid: Budget Status & Insights Row -->
+                    <div class="dash-grid-secondary">
+                        <!-- D. Budget Usage Progress Card -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Monthly Budget Usage</h3>
+                                    <span class="card-subtitle">Real-time utilization rate</span>
+                                </div>
+                                <span id="dash-budget-status-badge" class="badge badge-success">On Track</span>
+                            </div>
+                            <div class="budget-usage-content">
+                                <div class="budget-usage-metric">
+                                    <span class="usage-label">Used of Budget</span>
+                                    <span id="dash-budget-usage-pct" class="usage-number font-bold text-lg">66.7%</span>
+                                </div>
+                                <div class="progress-bar-container large">
+                                    <div id="dash-budget-usage-bar" class="progress-bar-fill" style="width: 66.7%;"></div>
+                                </div>
+                                <div class="usage-caption mt-2">
+                                    <span id="dash-budget-usage-detail" class="text-sm text-muted">₹8,000 spent of ₹12,000 budget (₹4,000 remaining)</span>
+                                </div>
+                                <div class="threshold-indicators">
+                                    <span class="th-mark">0%</span>
+                                    <span class="th-mark">75% (Alert)</span>
+                                    <span class="th-mark">90% (Caution)</span>
+                                    <span class="th-mark">100% (Limit)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- E. Highest Spending Category -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Highest Spending Category</h3>
+                                    <span class="card-subtitle">Primary expense driver this month</span>
+                                </div>
+                                <span class="badge badge-warning">Top Category</span>
+                            </div>
+                            <div class="highest-category-content">
+                                <div id="dash-highest-category-icon" class="category-hero-bubble">
+                                    <i data-lucide="utensils"></i>
+                                </div>
+                                <div class="highest-category-details">
+                                    <h4 id="dash-highest-category-name" class="highest-category-title">Food</h4>
+                                    <div id="dash-highest-category-amt" class="highest-category-amount">₹3,000</div>
+                                    <p id="dash-highest-category-pct" class="highest-category-percentage text-muted text-xs">37.5% of total monthly spend</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Smart Spending Insights Card -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Smart Spending Insights</h3>
+                                    <span class="card-subtitle">Rule-based algorithmic feedback</span>
+                                </div>
+                                <span class="badge badge-emerald"><i data-lucide="sparkles"></i> Insights</span>
+                            </div>
+                            <div id="dash-insights-container" class="insights-list">
+                                <!-- Dynamic Insights rendered here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- C. Recent Transactions Table Section -->
+                    <div class="content-card mt-6">
+                        <div class="card-header">
+                            <div class="card-title-group">
+                                <h3 class="card-title">Recent Transactions</h3>
+                                <span class="card-subtitle">Latest recorded expenses</span>
+                            </div>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="App.navigateTo('transactions')">
+                                View All Transactions <i data-lucide="arrow-right"></i>
+                            </button>
+                        </div>
+                        <div id="dash-recent-transactions-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================== -->
+                <!-- 2. TRANSACTIONS VIEW                           -->
+                <!-- ============================================== -->
+                <section id="view-transactions" class="page-view" style="display: none;">
+                    <div class="content-card">
+                        <!-- Filter & Action Toolbar -->
+                        <div class="transactions-toolbar">
+                            <div class="toolbar-search">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="tx-search" placeholder="Search by description, notes, or tags...">
+                            </div>
+
+                            <div class="toolbar-filters">
+                                <select id="tx-category-filter" class="form-select-sm" aria-label="Filter by category">
+                                    <option value="All">All Categories</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Bills & Utilities">Bills &amp; Utilities</option>
+                                    <option value="Other">Other</option>
+                                </select>
+
+                                <select id="tx-method-filter" class="form-select-sm" aria-label="Filter by payment method">
+                                    <option value="All">All Payment Methods</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Debit Card">Debit Card</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Other">Other</option>
+                                </select>
+
+                                <select id="tx-type-filter" class="form-select-sm" aria-label="Filter by need or want">
+                                    <option value="All">All Types</option>
+                                    <option value="Need">Needs Only</option>
+                                    <option value="Want">Wants Only</option>
+                                </select>
+
+                                <select id="tx-sort" class="form-select-sm" aria-label="Sort transactions">
+                                    <option value="date-desc">Date: Newest First</option>
+                                    <option value="date-asc">Date: Oldest First</option>
+                                    <option value="amount-desc">Amount: Highest First</option>
+                                    <option value="amount-asc">Amount: Lowest First</option>
+                                </select>
+
+                                <button id="tx-clear-filters-btn" class="btn btn-outline-secondary btn-sm" title="Reset all filters">
+                                    <i data-lucide="rotate-ccw"></i> Clear Filters
+                                </button>
+                            </div>
+
+                            <div class="toolbar-actions">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="Utils.exportTransactionsToCSV(Storage.getExpenses())">
+                                    <i data-lucide="download"></i> Export CSV
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="Expenses.openAddModal()">
+                                    <i data-lucide="plus"></i> Add Expense
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Status bar -->
+                        <div class="transactions-status-bar">
+                            <span id="tx-filtered-count" class="text-sm font-medium">9 transactions</span>
+                            <span id="tx-filtered-total" class="text-sm font-semibold text-emerald">Total: ₹8,000</span>
+                        </div>
+
+                        <!-- Main Transactions Table -->
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Category</th>
+                                        <th>Payment</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th class="text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-table-body">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div id="transactions-empty-state" class="empty-state" style="display: none;">
+                            <div class="empty-icon"><i data-lucide="filter-x"></i></div>
+                            <h3>No transactions found</h3>
+                            <p>No records match your selected filters. Try clearing or relaxing the search criteria.</p>
+                            <button class="btn btn-outline-primary btn-sm mt-3" onclick="Expenses.resetFilters()">Reset Filters</button>
+                        </div>
+
+                        <!-- Pagination Bar -->
+                        <div id="tx-pagination" class="pagination-container">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================== -->
+                <!-- 3. BUDGET PLANNER VIEW                         -->
+                <!-- ============================================== -->
+                <section id="view-budget" class="page-view" style="display: none;">
+                    <!-- Budget Alert Banner -->
+                    <div id="bp-alert-banner" class="alert-box alert-box-success" style="display: none;">
+                        <!-- Rendered dynamically -->
+                    </div>
+
+                    <div class="budget-planner-grid">
+                        <!-- Left Column: Settings & Meter -->
+                        <div class="budget-left-col">
+                            <!-- Budget Health Card -->
+                            <div class="content-card">
+                                <div class="card-header">
+                                    <div class="card-title-group">
+                                        <h3 class="card-title">Monthly Budget Status</h3>
+                                        <span class="card-subtitle">Real-time calculation vs limit</span>
+                                    </div>
+                                    <span id="bp-status-badge" class="badge badge-success">On Track</span>
+                                </div>
+                                <div class="bp-meter-content">
+                                    <div class="bp-metric-row">
+                                        <div class="bp-metric-box">
+                                            <span class="bp-lbl">Monthly Budget</span>
+                                            <span id="bp-monthly-budget" class="bp-val">₹12,000</span>
+                                        </div>
+                                        <div class="bp-metric-box">
+                                            <span class="bp-lbl">Total Expenses</span>
+                                            <span id="bp-total-expenses" class="bp-val text-emerald">₹8,000</span>
+                                        </div>
+                                        <div class="bp-metric-box">
+                                            <span class="bp-lbl">Remaining</span>
+                                            <span id="bp-remaining-budget" class="bp-val text-blue">₹4,000</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bp-progress-wrapper mt-4">
+                                        <div class="bp-progress-header">
+                                            <span class="text-sm font-medium">Budget Utilization</span>
+                                            <span id="bp-utilization-pct" class="font-bold text-sm">66.7%</span>
+                                        </div>
+                                        <div class="progress-bar-container large">
+                                            <div id="bp-progress-bar" class="progress-bar-fill" style="width: 66.7%;"></div>
+                                        </div>
+                                        <div class="threshold-indicators">
+                                            <span class="th-mark">0% (Safe)</span>
+                                            <span class="th-mark">75% (Approaching)</span>
+                                            <span class="th-mark">90% (Near Limit)</span>
+                                            <span class="th-mark">100% (Exceeded)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Daily Limit Card -->
+                            <div class="content-card mt-6">
+                                <div class="card-header">
+                                    <div class="card-title-group">
+                                        <h3 class="card-title">Daily Spending Limit</h3>
+                                        <span class="card-subtitle">Monitor today's pace to prevent overspending</span>
+                                    </div>
+                                    <span class="badge badge-neutral"><i data-lucide="clock"></i> Today</span>
+                                </div>
+                                <div class="daily-limit-content">
+                                    <div class="daily-stat-row">
+                                        <div>
+                                            <span class="text-xs text-muted">Spent Today:</span>
+                                            <div id="bp-today-spend" class="text-xl font-bold">₹0</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-xs text-muted">Daily Limit:</span>
+                                            <div id="bp-today-limit" class="text-xl font-bold">₹600</div>
+                                        </div>
+                                    </div>
+                                    <div class="progress-bar-container mt-3">
+                                        <div id="bp-daily-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+                                    </div>
+                                    <div id="bp-daily-status" class="daily-status-caption mt-2 text-xs">
+                                        <span class="text-success font-semibold">₹600 left for today</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Budget Configuration Form -->
+                            <div class="content-card mt-6">
+                                <div class="card-header">
+                                    <div class="card-title-group">
+                                        <h3 class="card-title">Configure Budget Limits</h3>
+                                        <span class="card-subtitle">Update financial parameters anytime</span>
+                                    </div>
+                                </div>
+                                <form id="budget-config-form" class="budget-form">
+                                    <div class="form-group">
+                                        <label for="budget-input-monthly" class="form-label">Monthly Expense Budget (₹)</label>
+                                        <input type="number" id="budget-input-monthly" class="form-control" min="1" step="50" required value="12000">
+                                        <small class="text-muted text-xs">Your ceiling target for total monthly expenses.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="budget-input-income" class="form-label">Monthly Expected Income / Allowance (₹)</label>
+                                        <input type="number" id="budget-input-income" class="form-control" min="0" step="100" value="25000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="budget-input-daily" class="form-label">Daily Safe Spending Limit (₹)</label>
+                                        <input type="number" id="budget-input-daily" class="form-control" min="1" step="10" value="600">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-full">
+                                        <i data-lucide="check"></i> Save Budget Configuration
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Category Breakdown -->
+                        <div class="budget-right-col">
+                            <div class="content-card">
+                                <div class="card-header">
+                                    <div class="card-title-group">
+                                        <h3 class="card-title">Category Spending &amp; Allocation</h3>
+                                        <span class="card-subtitle">Spending proportion across 8 standard categories</span>
+                                    </div>
+                                    <span class="badge badge-neutral">Breakdown</span>
+                                </div>
+                                <div id="bp-category-breakdown-list" class="category-breakdown-list">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================== -->
+                <!-- 4. EXPENSE ANALYTICS VIEW                      -->
+                <!-- ============================================== -->
+                <section id="view-analytics" class="page-view" style="display: none;">
+                    <!-- Analytics KPI Header -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Top Category</span>
+                                <div class="kpi-icon-bubble bg-emerald-light text-emerald"><i data-lucide="award"></i></div>
+                            </div>
+                            <div id="an-top-category" class="kpi-value text-lg">Food</div>
+                            <div id="an-top-category-sub" class="kpi-meta text-xs text-muted">₹3,000 (37.5%)</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Avg Daily Spend</span>
+                                <div class="kpi-icon-bubble bg-blue-light text-blue"><i data-lucide="calendar"></i></div>
+                            </div>
+                            <div id="an-avg-daily" class="kpi-value text-lg">₹444</div>
+                            <div class="kpi-meta text-xs text-muted">Based on active days</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Total Transactions</span>
+                                <div class="kpi-icon-bubble bg-purple-light text-purple"><i data-lucide="hash"></i></div>
+                            </div>
+                            <div id="an-tx-count" class="kpi-value text-lg">9</div>
+                            <div class="kpi-meta text-xs text-muted">Entries recorded this month</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header">
+                                <span class="kpi-label">Needs vs Wants</span>
+                                <div class="kpi-icon-bubble bg-amber-light text-amber"><i data-lucide="scales"></i></div>
+                            </div>
+                            <div id="an-nw-ratio" class="kpi-value text-sm font-semibold">63% Needs / 37% Wants</div>
+                            <div class="kpi-meta text-xs text-muted">Healthy discipline ratio</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid 1 -->
+                    <div class="dash-grid-charts mt-6">
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Category Spending Distribution</h3>
+                                    <span class="card-subtitle">Visual distribution across categories</span>
+                                </div>
+                            </div>
+                            <div class="chart-container-doughnut">
+                                <canvas id="analyticsCategoryChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Essential Needs vs Wants</h3>
+                                    <span class="card-subtitle">Discretionary vs essential purchases</span>
+                                </div>
+                            </div>
+                            <div class="chart-container-doughnut">
+                                <canvas id="analyticsNeedsWantsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid 2 -->
+                    <div class="dash-grid-charts mt-6">
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Payment Method Share</h3>
+                                    <span class="card-subtitle">UPI, Cards, and Cash comparison</span>
+                                </div>
+                            </div>
+                            <div class="chart-container-trend">
+                                <canvas id="analyticsPaymentMethodChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Monthly Expense Comparison</h3>
+                                    <span class="card-subtitle">Spending trends across recording months</span>
+                                </div>
+                            </div>
+                            <div class="chart-container-trend">
+                                <canvas id="analyticsMonthlyBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Smart Insights -->
+                    <div class="content-card mt-6">
+                        <div class="card-header">
+                            <div class="card-title-group">
+                                <h3 class="card-title">Automated Financial Insights</h3>
+                                <span class="card-subtitle">Calculated strictly from your stored records</span>
+                            </div>
+                            <span class="badge badge-emerald"><i data-lucide="check-check"></i> Verified Data</span>
+                        </div>
+                        <div id="an-insights-container" class="insights-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================== -->
+                <!-- 5. SAVINGS GOALS VIEW                          -->
+                <!-- ============================================== -->
+                <section id="view-savings" class="page-view" style="display: none;">
+                    <!-- Savings Overview Banner -->
+                    <div class="content-card savings-overview-card">
+                        <div class="savings-overview-grid">
+                            <div class="so-item">
+                                <span class="so-label">Total Saved</span>
+                                <div id="sg-total-saved" class="so-value text-emerald">₹11,500</div>
+                            </div>
+                            <div class="so-item">
+                                <span class="so-label">Total Target</span>
+                                <div id="sg-total-target" class="so-value">₹30,000</div>
+                            </div>
+                            <div class="so-item">
+                                <span class="so-label">Remaining to Save</span>
+                                <div id="sg-total-remaining" class="so-value text-muted">₹18,500</div>
+                            </div>
+                            <div class="so-item">
+                                <span class="so-label">Active Goals</span>
+                                <div id="sg-active-goals-count" class="so-value">2 Active</div>
+                            </div>
+                            <div class="so-item progress-col">
+                                <div class="so-progress-top">
+                                    <span class="so-label">Overall Progress</span>
+                                    <span id="sg-overall-pct" class="font-bold text-sm">38.3%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div id="sg-overall-progress-bar" class="progress-bar-fill" style="width: 38.3%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Header with Create Action -->
+                    <div class="section-actions-header mt-6">
+                        <div>
+                            <h3 class="font-bold text-lg">Your Savings Targets</h3>
+                            <p class="text-sm text-muted">Track specific milestones like laptop upgrades, exams, or emergency funds.</p>
+                        </div>
+                        <button id="open-create-goal-btn" class="btn btn-primary">
+                            <i data-lucide="plus-circle"></i> Create New Goal
+                        </button>
+                    </div>
+
+                    <!-- Goals Grid -->
+                    <div id="goals-grid" class="goals-grid mt-4">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="goals-empty-state" class="empty-state" style="display: none;">
+                        <div class="empty-icon"><i data-lucide="target"></i></div>
+                        <h3>No savings goals yet</h3>
+                        <p>Set a goal to save for gadgets, semester fees, or emergency reserves.</p>
+                        <button class="btn btn-primary btn-sm mt-3" onclick="App.openGoalModal()">+ Create Your First Goal</button>
+                    </div>
+                </section>
+
+                <!-- ============================================== -->
+                <!-- 6. SETTINGS VIEW                               -->
+                <!-- ============================================== -->
+                <section id="view-settings" class="page-view" style="display: none;">
+                    <div class="settings-grid">
+                        <!-- Financial Preferences -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Financial Preferences</h3>
+                                    <span class="card-subtitle">Configure currency, budget targets, and allowances</span>
+                                </div>
+                            </div>
+                            <form id="settings-general-form">
+                                <div class="form-group">
+                                    <label for="settings-username" class="form-label">User / Student Name</label>
+                                    <input type="text" id="settings-username" class="form-control" value="Shivam Solanki">
+                                </div>
+                                <div class="form-group">
+                                    <label for="settings-budget" class="form-label">Monthly Expense Budget (₹)</label>
+                                    <input type="number" id="settings-budget" class="form-control" value="12000" min="1" step="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="settings-income" class="form-label">Monthly Allowance / Income (₹)</label>
+                                    <input type="number" id="settings-income" class="form-control" value="25000" min="0" step="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="settings-daily-limit" class="form-label">Daily Safe Spending Limit (₹)</label>
+                                    <input type="number" id="settings-daily-limit" class="form-control" value="600" min="1" step="10">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Currency Standard</label>
+                                    <input type="text" class="form-control" value="INR (₹) - Indian Rupee [en-IN]" disabled>
+                                    <small class="text-muted text-xs">Currency formatting is configured to Indian numbering system.</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i data-lucide="save"></i> Save Preferences
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Data & Backup Management -->
+                        <div class="content-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">Data Management &amp; Export</h3>
+                                    <span class="card-subtitle">Export records, download backup, or reset data</span>
+                                </div>
+                            </div>
+                            <div class="settings-actions-list">
+                                <div class="setting-action-row">
+                                    <div>
+                                        <div class="font-medium text-sm">Export Transactions as CSV</div>
+                                        <div class="text-muted text-xs">Download an Excel-compatible spreadsheet of all stored expenses.</div>
+                                    </div>
+                                    <button id="btn-export-csv" class="btn btn-outline-secondary btn-sm">
+                                        <i data-lucide="file-spreadsheet"></i> Export CSV
+                                    </button>
+                                </div>
+
+                                <div class="setting-action-row">
+                                    <div>
+                                        <div class="font-medium text-sm">Download JSON Backup</div>
+                                        <div class="text-muted text-xs">Export raw state including settings and savings goals.</div>
+                                    </div>
+                                    <button id="btn-export-json" class="btn btn-outline-secondary btn-sm">
+                                        <i data-lucide="download"></i> Backup JSON
+                                    </button>
+                                </div>
+
+                                <div class="setting-action-row">
+                                    <div>
+                                        <div class="font-medium text-sm">Reset to Demo Presentation Data</div>
+                                        <div class="text-muted text-xs">Restores the ₹8,000 expense / ₹12,000 budget presentation set.</div>
+                                    </div>
+                                    <button id="btn-reset-demo" class="btn btn-outline-primary btn-sm">
+                                        <i data-lucide="rotate-ccw"></i> Reset Demo Data
+                                    </button>
+                                </div>
+
+                                <div class="setting-action-row danger-row">
+                                    <div>
+                                        <div class="font-medium text-sm text-danger">Clear All LocalStorage Data</div>
+                                        <div class="text-muted text-xs">Deletes all saved transactions and starts with an empty ledger.</div>
+                                    </div>
+                                    <button id="btn-clear-all" class="btn btn-danger btn-sm">
+                                        <i data-lucide="trash-2"></i> Wipe All Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Academic & Project Info Card -->
+                        <div class="content-card full-width-card">
+                            <div class="card-header">
+                                <div class="card-title-group">
+                                    <h3 class="card-title">About TrackX Project</h3>
+                                    <span class="card-subtitle">College Mini-Project Specifications</span>
+                                </div>
+                                <span class="badge badge-emerald">CSE Mini Project</span>
+                            </div>
+                            <div class="project-info-grid">
+                                <div class="pi-item">
+                                    <span class="pi-label">Project Title:</span>
+                                    <span class="pi-val font-semibold">Smart Expense Tracker &amp; Budget Manager</span>
+                                </div>
+                                <div class="pi-item">
+                                    <span class="pi-label">Team Name:</span>
+                                    <span class="pi-val font-semibold">TrackX</span>
+                                </div>
+                                <div class="pi-item">
+                                    <span class="pi-label">Institution:</span>
+                                    <span class="pi-val font-semibold">Lakshmi Narain College of Technology, Excellence (LNCT Excellence)</span>
+                                </div>
+                                <div class="pi-item">
+                                    <span class="pi-label">Academic Session:</span>
+                                    <span class="pi-val font-semibold">2026–27</span>
+                                </div>
+                                <div class="pi-item">
+                                    <span class="pi-label">Architecture:</span>
+                                    <span class="pi-val">HTML5, CSS3, Vanilla ES6+ JavaScript, Chart.js, LocalStorage</span>
+                                </div>
+                                <div class="pi-item">
+                                    <span class="pi-label">Storage Architecture:</span>
+                                    <span class="pi-val">Client-side browser LocalStorage (Private &amp; Offline-first)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: ADD / EDIT EXPENSE                      -->
+    <!-- ============================================== -->
+    <div id="expense-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon-bubble"><i data-lucide="receipt"></i></div>
+                    <h3 id="modal-title" class="modal-title">Add New Expense</h3>
+                </div>
+                <button id="modal-close-btn" class="modal-close-btn" aria-label="Close modal">&times;</button>
+            </div>
+            <form id="expense-form">
+                <div class="modal-body">
+                    <!-- Amount Input -->
+                    <div class="form-group">
+                        <label for="expense-amount" class="form-label">Amount (₹) <span class="required">*</span></label>
+                        <div class="input-with-symbol">
+                            <span class="currency-prefix">₹</span>
+                            <input type="number" id="expense-amount" class="form-control pl-8" placeholder="0.00" min="0.01" step="any" required>
+                        </div>
+                        <div id="error-expense-amount" class="form-error"></div>
+                    </div>
+
+                    <!-- Description Input -->
+                    <div class="form-group">
+                        <label for="expense-description" class="form-label">Expense Description <span class="required">*</span></label>
+                        <input type="text" id="expense-description" class="form-control" placeholder="e.g. Canteen Lunch, Books, Metro Pass" required maxlength="100">
+                        <div id="error-expense-description" class="form-error"></div>
+                    </div>
+
+                    <!-- Category & Date (Two Column) -->
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="expense-category" class="form-label">Category <span class="required">*</span></label>
+                            <select id="expense-category" class="form-control" required>
+                                <option value="" disabled selected>Select category</option>
+                                <option value="Food">Food</option>
+                                <option value="Travel">Travel</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Education">Education</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Bills & Utilities">Bills &amp; Utilities</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <div id="error-expense-category" class="form-error"></div>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label for="expense-date" class="form-label">Date <span class="required">*</span></label>
+                            <input type="date" id="expense-date" class="form-control" required>
+                            <div id="error-expense-date" class="form-error"></div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method & Expense Type -->
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="expense-payment-method" class="form-label">Payment Method</label>
+                            <select id="expense-payment-method" class="form-control">
+                                <option value="UPI">UPI</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Debit Card">Debit Card</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label class="form-label">Expense Classification</label>
+                            <div class="radio-toggle-group">
+                                <label class="radio-chip">
+                                    <input type="radio" name="expenseType" value="Need" checked>
+                                    <span>Need (Essential)</span>
+                                </label>
+                                <label class="radio-chip">
+                                    <input type="radio" name="expenseType" value="Want">
+                                    <span>Want (Lifestyle)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optional Notes -->
+                    <div class="form-group">
+                        <label for="expense-notes" class="form-label">Notes (Optional)</label>
+                        <input type="text" id="expense-notes" class="form-control" placeholder="Additional details or tag" maxlength="150">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="modal-cancel-btn" class="btn btn-outline-secondary">Cancel</button>
+                    <button type="submit" id="modal-submit-btn" class="btn btn-primary">Save Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: DELETE CONFIRMATION                     -->
+    <!-- ============================================== -->
+    <div id="delete-modal" class="modal-backdrop">
+        <div class="modal-dialog modal-dialog-sm">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon-bubble bg-rose-light text-rose"><i data-lucide="alert-triangle"></i></div>
+                    <h3 class="modal-title">Delete Expense</h3>
+                </div>
+                <button id="delete-modal-close-btn" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="delete-modal-text" class="text-sm text-muted">
+                    Are you sure you want to delete this expense? This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancel-delete-btn" class="btn btn-outline-secondary">Cancel</button>
+                <button type="button" id="confirm-delete-btn" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: CREATE / EDIT SAVINGS GOAL              -->
+    <!-- ============================================== -->
+    <div id="goal-modal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon-bubble bg-emerald-light text-emerald"><i data-lucide="target"></i></div>
+                    <h3 id="goal-modal-title" class="modal-title">Create Savings Goal</h3>
+                </div>
+                <button id="goal-close-btn" class="modal-close-btn">&times;</button>
+            </div>
+            <form id="goal-form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="goal-name" class="form-label">Goal Title <span class="required">*</span></label>
+                        <input type="text" id="goal-name" class="form-control" placeholder="e.g. Laptop Upgrade, Semester Fee" required maxlength="60">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="goal-target" class="form-label">Target Amount (₹) <span class="required">*</span></label>
+                            <input type="number" id="goal-target" class="form-control" placeholder="20000" min="1" step="100" required>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="goal-current" class="form-label">Initial Saved Amount (₹)</label>
+                            <input type="number" id="goal-current" class="form-control" placeholder="0" min="0" step="50" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="goal-date" class="form-label">Target Date (Optional)</label>
+                            <input type="date" id="goal-date" class="form-control">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="goal-category" class="form-label">Category</label>
+                            <select id="goal-category" class="form-control">
+                                <option value="Tech & Gadgets">Tech &amp; Gadgets</option>
+                                <option value="Education">Education</option>
+                                <option value="Emergency Fund">Emergency Fund</option>
+                                <option value="Travel & Outing">Travel &amp; Outing</option>
+                                <option value="Personal Savings">Personal Savings</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="goal-cancel-btn" class="btn btn-outline-secondary">Cancel</button>
+                    <button type="submit" id="goal-submit-btn" class="btn btn-primary">Save Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: ADD MONEY TO SAVINGS GOAL               -->
+    <!-- ============================================== -->
+    <div id="deposit-modal" class="modal-backdrop">
+        <div class="modal-dialog modal-dialog-sm">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon-bubble bg-emerald-light text-emerald"><i data-lucide="plus-circle"></i></div>
+                    <h3 class="modal-title">Deposit to Savings Goal</h3>
+                </div>
+                <button id="deposit-close-btn" class="modal-close-btn">&times;</button>
+            </div>
+            <form id="deposit-form">
+                <div class="modal-body">
+                    <p id="deposit-modal-desc" class="text-sm text-muted mb-3">Add funds to your savings goal.</p>
+                    <div class="form-group">
+                        <label for="deposit-amount" class="form-label">Deposit Amount (₹) <span class="required">*</span></label>
+                        <div class="input-with-symbol">
+                            <span class="currency-prefix">₹</span>
+                            <input type="number" id="deposit-amount" class="form-control pl-8" placeholder="500" min="1" step="50" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="deposit-cancel-btn" class="btn btn-outline-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Funds</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Application JavaScript Modules -->
+    <script src="js/storage.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/budget.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/expenses.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
